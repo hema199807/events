@@ -1,0 +1,98 @@
+#sign-up-heading{
+    font-size: 30px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+#signup-form{
+    background-color: white;
+    margin: 0 auto;
+    margin-top: 20px;
+    width: 62%;
+    border-radius: 10px;
+    padding: 16px;
+    
+}
+.hide-div{
+    display: none;
+}
+.display-div{
+    display: block;
+    margin-top: 50px;
+}
+.input-fields{
+    margin-left:150px;
+    margin-bottom: 50px;
+}
+.display-div:first-of-type{
+    margin-bottom: 5px;
+}
+.hide-msg{
+    display:none
+}
+#hide-check-div{
+    display: none;
+}
+#display-checkdiv{
+    display: block;
+}
+#hide-format{
+    display:none;
+}
+#hide-userlen-div{
+    display:none;
+}
+#display-userlen-div{
+    display:"block";
+    color:red;
+}
+#hide-usermsg-div{
+    display:none;
+}
+#display-usermsg-div{
+    display: block;
+    color: red;
+}
+#display-format{
+    display:block;
+    color:red
+}
+#hide-error{
+    display:none;
+}
+#error{
+    display: block;
+    color: red;
+}
+.display-msg{
+    display: block;
+    color: red;
+}
+input{
+    border: none;
+    outline: none;
+    border-bottom: 2px solid gray;
+    width:550px;
+    font-size: 18px;
+
+}
+input:first-of-type{
+    margin-top: 0;
+}
+#btn-cancel{
+    background-color: red;
+    color: white;
+    border-radius: 6px;
+    padding: 5px;
+    font-size: 18px;
+    margin-left:420px;
+    cursor: pointer;
+}
+#btn-signup{
+    margin-left:150px;
+    background-color: green;
+    color: white;
+    border-radius: 6px;
+    padding: 5px; 
+    font-size: 18px; 
+    cursor: pointer; 
+}

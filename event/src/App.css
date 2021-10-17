@@ -1,0 +1,118 @@
+#calender{
+  background-color: white;
+  width:60%;
+  margin:0 auto;
+  margin-top: 10px;
+}
+#calender-header{
+  display: flex;
+  justify-content: space-between;
+  background-color: blue;
+  padding:16px;
+  color: white;
+  font-size: 20px;
+}
+#prev-btn{
+  cursor: pointer;
+}
+#next-btn{
+  cursor: pointer;
+}
+#current-month{
+  cursor: pointer;
+}
+#display-month{
+  display: none;
+}
+#dis-month{
+ 
+  display: block;
+}
+#dis-input{
+  font-size: 18px;
+  position: relative;
+  left: 37%;
+  width:25%;
+  border:1px solid black;
+}
+#calender-days{
+  display: flex;
+  justify-content: space-around;
+  border:1px solid gray;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+}
+.disabled{
+  pointer-events: none;
+  color:#ccc;
+}
+.selected{
+  background-color: lightgrey;
+  font-size: 20px;
+}
+.today{
+  color: blue;
+  font-size: 20px;
+}
+.row{
+  display: flex;
+  width: 100%;
+}
+.weekdays{
+  cursor: pointer;
+  border: 1px solid gray;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+}
+.current-time{
+  border-color:red;
+  display: inline-block;
+  width:95%;
+}
+.day-eve{
+  color: gray;
+  float: right;
+  margin-right: 32px;
+  cursor: pointer;
+}
+#hide-day{
+  display: none;
+}
+#display-day{
+  background-color: white;
+  width:60%;
+  margin:0 auto;
+  margin-top: 10px;
+  height:35vh;
+  overflow: auto;
+}
+.timeLabel{
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.time-hr{
+  border-color:lightslategray;
+  display: inline-block;
+  width:95%;
+}
+#add-btn{
+  margin-top: 30px;
+  padding:5px 10px;
+  background-color: blue;
+  color:white;
+  border-radius: 5px;
+  margin-right: 40px;
+  cursor: pointer;
+}
+#cancel-btn{
+  padding:5px 10px;
+  background-color: red;
+  color:white;
+  border-radius: 5px;
+  margin-left: 40px;
+  cursor: pointer;
+}
