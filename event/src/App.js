@@ -1,5 +1,5 @@
 import React,{useState, useEffect} from 'react';
-import {format,addMonths,endOfDay, startOfHour, eachHourOfInterval ,startOfDay ,subMonths,startOfWeek,startOfMonth,endOfMonth,endOfWeek,isSameMonth,isSameDay, addHours, addMinutes} from 'date-fns';
+import {format,addMonths,endOfDay, startOfHour, eachHourOfInterval ,startOfDay ,subMonths,startOfWeek,startOfMonth,endOfMonth,endOfWeek,isSameMonth,isSameDay, addHours, addMinutes, getUnixTime} from 'date-fns';
 import addDays from 'date-fns/addDays';
 import Modal from 'react-modal';
 import './App.css';
@@ -29,16 +29,17 @@ function App(props) {
   const [rows,setRows]=useState([]);
   const [timeArr,setTimeArr]=useState([]);
   const [presentTime,setPresentTime]=useState("");
-  const [todayDate,setTodayDate]=useState(format(currentMonth, "d"));
+  const [todayDate,setTodayDate]=useState(format(currentMonth, "dd"));
   const [dateFormat,setDateFormat]=useState("MMMM yyyy");
   const [disCalender,setDisCalender]=useState("display-month");
   const [displayDayTimings,setDisplayDayTimings]=useState("hide-day");
   const [openModel,setOpenModel]=useState(false);
   const [eventTitle,setEventTitle]=useState("");
-  const [eventStartTime,setEventStartTime]=useState(format(new Date(),"yyyy-MM-dd")+"T"+format(new Date(),"HH:mm"));
-  const [eventEndTime,setEventEndTime]=useState(format(new Date(),"yyyy-MM-dd")+"T"+(Number(format(new Date(),"HH"))+1)+":"+format(new Date(),"mm"))
+  const [eventStartTime,setEventStartTime]=useState();
+  const [eventEndTime,setEventEndTime]=useState()
   const [headerCalender,setHeaderCalender]=useState(new Date().getFullYear()+"-"+(new Date().getMonth()+1));
   const [eventsArr,setEventsArr]=useState([]);
+  const [count,setCount]=useState([]);
 
   useEffect(() => {
    
@@ -53,9 +54,8 @@ function App(props) {
     handleTimings(); 
     let time=format(new Date(),"HH:mm");
     setPresentTime(time)
-    setRows(displayDates(currentMonth));
     getEvents();
-
+    setRows(displayDates(currentMonth));
   }, [])
 
     function getEvents(){
@@ -64,13 +64,15 @@ function App(props) {
           authorization: `bearer ${props.token.trim()}`,
         },
       }).then((response)=>{
-        console.log(response.data.data)
         setEventsArr(response.data.data);
+      
       })
     }
-   
-    setInterval(function(){
     
+    
+
+    setInterval(function(){
+      
       let time=format(new Date(),"HH:mm");
   
       setPresentTime(time)
@@ -80,19 +82,20 @@ function App(props) {
 
   function handleTimings(){
     let timeA=[];
-    let startHour=format(startOfDay(new Date()),"HH");
-    let endHour=format(endOfDay(new Date()),"HH")
+    let startHour=format(startOfDay(currentMonth),"HH");
+    let endHour=format(endOfDay(currentMonth),"HH");
     startHour=Number(startHour);
     endHour=Number(endHour);
     while(startHour<=endHour){
     
-      let startMin=format(startOfDay(new Date()),"mm");
-      let EndMin=format(endOfDay(new Date()),"mm");
+      let startMin=format(startOfDay(currentMonth),"mm");
+      let EndMin=format(endOfDay(currentMonth),"mm");
       startMin=Number(startMin);
       EndMin=Number(EndMin);
       while(startMin<=EndMin){
-        let appendzero=startMin<9? ("0"+startMin):startMin;
-        let disTime=startHour+":"+appendzero;
+        let appendzero=startMin<=9? ("0"+startMin):startMin;
+        let appZ=startHour<=9?("0"+startHour):startHour;
+        let disTime=appZ+":"+appendzero;
         startMin=startMin+1
         timeA.push(disTime);
       }
@@ -103,6 +106,7 @@ function App(props) {
   }
 
   function displayDates(getMonth){
+    
     const monthStart =startOfMonth(getMonth);
     const monthEnd = endOfMonth(monthStart);
     const startDate = startOfWeek(monthStart);
@@ -112,32 +116,10 @@ function App(props) {
     let day = startDate;
     let formattedDate = "";
     let displayDates=[];
-    let count=0;
-    let c=eventsArr.filter((item)=>{
-      if(item.startTime.split("T")[0]===format(getMonth,"yyyy-MM-dd")){
-         return item;
-      }
-    })
-    console.log(c.length)
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
-        formattedDate = format(day, "d");
-        getDays.push(
-          <div 
-            className={` weekdays ${
-              !isSameMonth(day, monthStart)
-                ? "disabled"
-                :isSameDay(day, new Date())?"today selected":  "" 
-            }`}
-            
-            key={day}
-            onClick={(e) =>onDateClick(e,getMonth)}
-          >
-            {formattedDate}
-            
-          </div> 
-         
-        );
+        formattedDate = format(day, "dd-MM");
+        getDays.push(formattedDate);
         day = addDays(day, 1);
       }
       displayDates.push(
@@ -151,6 +133,25 @@ function App(props) {
     return displayDates;
   }
   function onDateClick(e,m){
+    
+    let updatedValue;
+    
+    if(typeof e.target.parentNode.childNodes[0].data =="undefined"){
+      updatedValue=e.target.childNodes[0].data;
+      console.log(e.target.childNodes[0].data,e.target,e)
+
+    }else{
+      let disevent=document.getElementById("hide-display-event");
+      if(disevent){
+      if(disevent.innerHTML!==""){
+        disevent.id="display-event";
+      }else{
+        disevent.id="hide-display-event";
+      }
+      }
+      updatedValue=e.target.parentNode.childNodes[0].data
+      console.log(e.target.parentNode.childNodes[0].data,e,e.target)
+    }
     let getcss=document.getElementsByClassName("weekdays selected");
     let sel=document.getElementsByClassName("weekdays today selected");
     if(sel.length){
@@ -159,11 +160,11 @@ function App(props) {
     if(getcss.length){
       getcss[0].className="weekdays";
     }
-    setSelectedDate(e.target.innerText);
-    setEventStartTime(format(currentMonth,"yyyy-MM")+"-"+e.target.innerText+"T"+format(new Date(),"HH:mm"))
-    setEventEndTime(format(currentMonth,"yyyy-MM")+"-"+e.target.innerText+"T"+(Number(format(new Date(),"HH"))+1)+":"+format(new Date(),"mm"))
-    if(e.target.innerText===todayDate){
-      if(format(new Date(),"MMMM")===format(m,"MMMM")){
+    setSelectedDate(updatedValue);
+    setEventStartTime(format(currentMonth,"yyyy-MM")+"-"+updatedValue+"T"+format(new Date(),"HH:mm"))
+    setEventEndTime(format(currentMonth,"yyyy-MM")+"-"+updatedValue+"T"+(Number(format(new Date(),"HH"))+1)+":"+format(new Date(),"mm"))
+    if(updatedValue===todayDate){
+      if(format(new Date(),"MM")===format(m,"MM")){
         e.target.className="weekdays today selected"
       }else{
         e.target.className="weekdays selected"
@@ -196,8 +197,9 @@ function App(props) {
   }
   function handleOpenModel(){
     let dateTime=Number(selectedDate)<=9? "0"+Number(selectedDate):selectedDate;
+    let dt=(Number(format(new Date(),"HH")))+1<=9?("0"+(Number(format(new Date(),"HH"))+1)):(Number(format(new Date(),"HH"))+1)
     setEventStartTime(format(currentMonth,"yyyy-MM")+"-"+dateTime+"T"+format(new Date(),"HH:mm"));
-    setEventEndTime(format(currentMonth,"yyyy-MM")+"-"+dateTime+"T"+(Number(format(new Date(),"HH"))+1)+":"+format(new Date(),"mm"));
+    setEventEndTime(format(currentMonth,"yyyy-MM")+"-"+dateTime+"T"+dt+":"+format(new Date(),"mm"));
     setOpenModel(true);
   }
   function handleCancelModel(){
@@ -239,11 +241,33 @@ function App(props) {
 
     })
   }
+  function handleStartEvent(e){
+    setEventStartTime(e.target.value)
+    let endDate=Number(e.target.value.split("T")[1].split(":")[0])+1<=9?("0"+(Number(e.target.value.split("T")[1].split(":")[0])+1)):Number(e.target.value.split("T")[1].split(":")[0])+1;
+    setEventEndTime(e.target.value.split("T")[0]+"T"+endDate+":"+e.target.value.split(":")[1])
+  }
+  function handleEndEvent(e){
+    setEventEndTime(e.target.value)
+    let start=Number(e.target.value.split("T")[1].split(":")[0])-1<=9?("0"+(Number(e.target.value.split("T")[1].split(":")[0])-1)):Number(e.target.value.split("T")[1].split(":")[0])-1
+    setEventStartTime(e.target.value.split("T")[0]+"T"+start+":"+e.target.value.split(":")[1])
+  }
+  function getItem(item){
+   
+    let gitem= eventsArr.filter((fItem)=>{
+      if(fItem===item){
+        return item;
+      }
+    })
+  
+    return gitem
+    
+  }
 
   return (
     <div>
     <div id="calender">
         <div id="calender-header">
+
           <div id="prev-btn" onClick={handlePrevMonth}><i className="fas fa-chevron-left"></i></div>
           <div id="current-month" onClick={handleGetCalender}>{format(currentMonth,dateFormat)}</div>
           <div id="next-btn" onClick={handleNextMonth}><i className="fas fa-chevron-right"></i></div>
@@ -260,7 +284,45 @@ function App(props) {
           })}
         </div>
         <div id="calender-dates">
-            {rows}
+        
+         
+          
+          {rows.length&&rows.map((item)=>{
+            return <div className="row"> 
+            {item.props.children.length && item.props.children.map((dItem,index)=>{
+              let coun=0;
+              return <div 
+              
+              className={` weekdays ${
+                dItem.split("-")[1] !== format(startOfMonth(currentMonth),"MM")
+                  ? "disabled"
+                  :dItem.split("-")[0]===todayDate && dItem.split("-")[1] ===format(new Date(),"MM")?"today selected":  "" 
+              }`}
+              
+              key={dItem}
+              onClick={(e) =>onDateClick(e,currentMonth)}
+            >
+             
+              
+              {eventsArr.length && eventsArr.map((item)=>{
+
+                if((item.startTime.split("T")[0].split("-")[2])===dItem.split("-")[0]){
+                  if(dItem.split("-")[1] === (item.startTime.split("T")[0].split("-")[1])){
+                  coun=coun+getItem(item).length
+                
+                }
+                }      
+              
+              })}
+              {dItem.split("-")[0]}{coun!==0?<><span id="count">{coun}</span></>:<></>}
+
+            </div>
+            
+            
+            })}
+            </div>
+          })}
+        
         </div>
     </div>
     <div id={displayDayTimings}>
@@ -268,11 +330,24 @@ function App(props) {
           {timeArr.length && timeArr.map((item,index)=>{
 
             return <div key={index} >
-              {"00"===item.split(":")[1]?item===presentTime?selectedDate===todayDate?<div className="timeLabel">{item}<hr className="current-time"/></div>:<div className="timeLabel">{item}<hr className="time-hr" /></div>:<div className="timeLabel">{item}<hr className="time-hr" /></div>:""}
-           
-            
-            {selectedDate===todayDate?item===presentTime?item.split(":")[1]!=="00"?<div>{item}<hr className="current-time"/></div>:<></>:<></>:<></>}
+              {"00"===item.split(":")[1]?item===presentTime?format(currentMonth,"MMMM")===format(new Date(),"MMMM") && selectedDate===todayDate?<div className="timeLabel">{item}<hr className="current-time"/></div>:<div className="timeLabel">{item}<hr className="time-hr" /></div>:<div className="timeLabel">{item}<hr className="time-hr" /></div>:""}
+               
+              {format(currentMonth,"MMMM")===format(new Date(),"MMMM")?selectedDate===todayDate?item===presentTime?"00"!==item.split(":")[1]?<div>{item}<hr className="current-time"/></div>:<></>:<></>:<></>:<></>}
+              
             </div>
+          })}
+    </div>
+    <div id="hide-display-event">
+          {eventsArr.length&&eventsArr.map((item)=>{
+            if(item.startTime.split("T")[0]===((format(currentMonth,"yyyy-MM"))+"-"+selectedDate)){
+                return <>
+                      <h4>{item.eventName}</h4>
+                      <div>{item.startTime}</div>
+                      <div>{item.endTime}</div>
+                      </>
+            }
+            
+            
           })}
     </div>
     <Modal
@@ -290,10 +365,10 @@ function App(props) {
           onKeyUp={(e)=> e.code==="Enter"?handleEvent():""}/> 
         </div>
         <div style={{marginTop:10+"px"}}>Start:
-          <input type="datetime-local" max={eventStartTime.split("T")[0]} value={eventStartTime} style={{marginLeft:20+"px"}} onChange={(e)=>setEventStartTime(e.target.value)} />
+          <input type="datetime-local"  value={eventStartTime} style={{marginLeft:20+"px"}} onChange={(e)=>handleStartEvent(e)} />
         </div>
         <div style={{marginTop:10+"px"}}>End:
-          <input type="datetime-local" min={eventEndTime.split("T")[0]} value={eventEndTime} style={{marginLeft:20+"px"}} onChange={(e)=>setEventEndTime(e.target.value)}/>
+          <input type="datetime-local"  value={eventEndTime} style={{marginLeft:20+"px"}} onChange={(e)=>handleEndEvent(e)}/>
         </div>
       <button id="add-btn" onClick={handleEvent}>Add</button>
       <button id="cancel-btn" onClick={handleCancelModel}>Cancel</button> 

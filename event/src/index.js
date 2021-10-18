@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import Signup from './Components/signup';
 import Login from './Components/login';
-import App from './App';
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 
@@ -12,7 +11,6 @@ ReactDOM.render(
     <Switch>
       <Route exact path="/" component={Login} />
       <Route path="/signup" component={Signup} />
-      <Route path="/calender" component={App} />
     </Switch>
   </BrowserRouter>,
   document.getElementById('root')
